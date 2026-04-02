@@ -171,38 +171,69 @@ button {
   height: 360px;
 }
 
-.district-chip {
+.hub-marker {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 72px;
-  min-height: 58px;
-  padding: 8px 10px;
-  border-radius: 999px;
+  left: var(--x);
+  top: var(--y);
   transform: translate(-50%, -50%);
-  text-align: center;
-  font-size: 0.64rem;
+  color: inherit;
+}
+
+.hub-marker__pin {
+  position: relative;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 6px 14px rgba(60, 77, 94, 0.2);
+  font-size: 0.6rem;
   font-weight: 800;
-  line-height: 1.1;
-  box-shadow: 0 8px 18px rgba(60, 77, 94, 0.14);
 }
 
-.district-chip__icon {
-  font-size: 1rem;
+.hub-marker__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  min-width: 76px;
+  max-width: 98px;
+  padding: 6px 9px;
+  border-radius: 14px;
+  transform: translate(
+    calc(-50% + var(--label-dx)),
+    calc(-50% + var(--label-dy))
+  );
+  white-space: normal;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.15;
+  box-shadow: 0 10px 18px rgba(60, 77, 94, 0.14);
 }
 
-.district-chip--open {
-  color: white;
+.hub-marker--open .hub-marker__pin {
   background: var(--green);
-  border-bottom: 6px solid var(--green-dark);
+  color: white;
 }
 
-.district-chip--locked {
-  color: #8b96a1;
-  background: #e5e5e5;
-  border-bottom: 6px solid #cacaca;
+.hub-marker--open .hub-marker__label {
+  color: #265000;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1.5px solid rgba(88, 204, 2, 0.38);
+}
+
+.hub-marker--locked .hub-marker__pin {
+  background: #d9d9d9;
+  color: #707a84;
+}
+
+.hub-marker--locked .hub-marker__label {
+  color: #6e7882;
+  background: rgba(244, 244, 244, 0.97);
+  border: 1.5px solid #d7d7d7;
 }
 
 .service-stack {

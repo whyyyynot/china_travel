@@ -27,6 +27,9 @@ const TINT_BY_ACCENT = {
   purple: '#f6efff',
 };
 
+const HUB_MAP_WIDTH = 180;
+const HUB_MAP_HEIGHT = 170;
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -34,6 +37,14 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function formatMapPercent(value, total) {
+  return `${((value / total) * 100).toFixed(1)}%`;
+}
+
+function buildHubMarkerStyle(hub) {
+  return `style="--x:${formatMapPercent(hub.x, HUB_MAP_WIDTH)};--y:${formatMapPercent(hub.y, HUB_MAP_HEIGHT)};--label-dx:${hub.labelDx}px;--label-dy:${hub.labelDy}px;"`;
 }
 
 function actionHref(contact, action) {
@@ -294,24 +305,24 @@ export function buildDistrictPageModel(districts, contact, slug) {
 export function renderHubMapSvg(model) {
   const nodes = model.all
     .map((district) => {
-      const style = `style="left:${district.hub.x}px;top:${district.hub.y}px;"`;
+      const style = buildHubMarkerStyle(district.hub);
       const classes = district.unlocked
-        ? 'district-chip district-chip--open'
-        : 'district-chip district-chip--locked';
+        ? 'hub-marker hub-marker--open'
+        : 'hub-marker hub-marker--locked';
 
       if (district.unlocked) {
         return `
-          <a class="${classes}" href="districts/${district.slug}.html" ${style}>
-            <span class="district-chip__icon">${escapeHtml(district.icon)}</span>
-            <span class="district-chip__label">${escapeHtml(district.nameZh)}</span>
+          <a class="${classes}" href="districts/${district.slug}.html" ${style} aria-label="${escapeHtml(district.nameEn)}">
+            <span class="hub-marker__pin" aria-hidden="true"></span>
+            <span class="hub-marker__label">${escapeHtml(district.nameEn)}</span>
           </a>
         `;
       }
 
       return `
-        <button class="${classes}" type="button" data-locked-slug="${district.slug}" ${style}>
-          <span class="district-chip__icon">🔒</span>
-          <span class="district-chip__label">${escapeHtml(district.nameZh)}</span>
+        <button class="${classes}" type="button" data-locked-slug="${district.slug}" ${style} aria-label="${escapeHtml(district.nameEn)}">
+          <span class="hub-marker__pin" aria-hidden="true">🔒</span>
+          <span class="hub-marker__label">${escapeHtml(district.nameEn)}</span>
         </button>
       `;
     })

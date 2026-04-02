@@ -20,6 +20,7 @@ test('getDistrictBySlug returns the requested district model', () => {
   const district = getDistrictBySlug(DISTRICTS, 'wenshuyuan');
   assert.equal(district.slug, 'wenshuyuan');
   assert.equal(district.nameZh, '文殊院');
+  assert.equal(district.nameEn, 'Wenshu Monastery');
 });
 
 test('getUnlockedDistricts returns the three launch districts', () => {
@@ -61,10 +62,14 @@ test('buildDistrictPageModel exposes route and poi content for an unlocked distr
   assert.match(model.dropoff.driverText, /文殊院/);
 });
 
-test('renderHubMapSvg outputs links for unlocked districts and buttons for locked districts', () => {
+test('renderHubMapSvg outputs translated labels and percentage-based marker positions', () => {
   const html = renderHubMapSvg(buildHubMapModel(DISTRICTS));
   assert.match(html, /href="districts\/wenshuyuan\.html"/);
   assert.match(html, /data-locked-slug="taikooli"/);
+  assert.match(html, /Wenshu Monastery/);
+  assert.match(html, /Jiuyan Bridge/);
+  assert.match(html, /--x:23\.3%;--y:20\.0%/);
+  assert.doesNotMatch(html, /style="left:\d+px;top:\d+px;"/);
 });
 
 test('renderServiceCards outputs the three MAPO service offers', () => {

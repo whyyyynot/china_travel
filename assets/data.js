@@ -56,18 +56,18 @@ export const SERVICES = [
 ];
 
 const HUB_POSITIONS = {
-  wenshuyuan: { x: 42, y: 34, width: 26, height: 18 },
-  'peoples-park': { x: 74, y: 80, width: 31, height: 18 },
-  jiuyanqiao: { x: 132, y: 112, width: 30, height: 18 },
-  taikooli: { x: 118, y: 88, width: 28, height: 18 },
-  jinli: { x: 58, y: 106, width: 24, height: 18 },
-  kuanzhai: { x: 66, y: 64, width: 28, height: 18 },
-  'dongjiao-memory': { x: 147, y: 58, width: 28, height: 18 },
-  yulin: { x: 110, y: 134, width: 24, height: 18 },
-  'qingyang-palace': { x: 30, y: 86, width: 29, height: 18 },
-  'chunxi-road': { x: 98, y: 94, width: 28, height: 18 },
-  'tianfu-square': { x: 90, y: 112, width: 30, height: 18 },
-  'sichuan-university': { x: 138, y: 138, width: 31, height: 18 },
+  wenshuyuan: { x: 42, y: 34, labelDx: -14, labelDy: -34 },
+  'peoples-park': { x: 74, y: 80, labelDx: -56, labelDy: 2 },
+  jiuyanqiao: { x: 132, y: 112, labelDx: 44, labelDy: 18 },
+  taikooli: { x: 118, y: 88, labelDx: 52, labelDy: -26 },
+  jinli: { x: 58, y: 106, labelDx: -46, labelDy: 24 },
+  kuanzhai: { x: 66, y: 64, labelDx: -6, labelDy: -40 },
+  'dongjiao-memory': { x: 147, y: 58, labelDx: 24, labelDy: -38 },
+  yulin: { x: 110, y: 134, labelDx: -18, labelDy: 30 },
+  'qingyang-palace': { x: 30, y: 86, labelDx: -8, labelDy: 24 },
+  'chunxi-road': { x: 98, y: 94, labelDx: 8, labelDy: -48 },
+  'tianfu-square': { x: 90, y: 112, labelDx: 0, labelDy: 34 },
+  'sichuan-university': { x: 138, y: 138, labelDx: 22, labelDy: 34 },
 };
 
 const LEGEND = [
@@ -288,7 +288,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'wenshuyuan',
     nameZh: '文殊院',
-    nameEn: 'Wenshuyuan',
+    nameEn: 'Wenshu Monastery',
     unlocked: true,
     icon: '🏯',
     summary: 'Temple lanes, noodle stops, and quick recovery points around Wenshu Monastery.',
@@ -444,7 +444,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'jiuyanqiao',
     nameZh: '九眼桥',
-    nameEn: 'Jiuyanqiao',
+    nameEn: 'Jiuyan Bridge',
     unlocked: true,
     icon: '🌉',
     summary: 'Riverfront views, night-life anchors, and practical recovery points near the Jin River.',
@@ -522,7 +522,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'taikooli',
     nameZh: '太古里',
-    nameEn: 'Taikoo Li',
+    nameEn: 'Taikoo Li Chengdu',
     unlocked: false,
     icon: '👜',
     summary: 'Luxury retail maze with fast-demand unlock intent from first-time visitors.',
@@ -530,7 +530,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'jinli',
     nameZh: '锦里',
-    nameEn: 'Jinli',
+    nameEn: 'Jinli Ancient Street',
     unlocked: false,
     icon: '🏮',
     summary: 'Historic snack street with high-tourist-density wayfinding pain.',
@@ -538,7 +538,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'kuanzhai',
     nameZh: '宽窄巷子',
-    nameEn: 'Kuanzhai Alleys',
+    nameEn: 'Wide and Narrow Alleys',
     unlocked: false,
     icon: '🏘️',
     summary: 'Dense alley cluster where curated routes save time fast.',
@@ -546,7 +546,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'dongjiao-memory',
     nameZh: '东郊记忆',
-    nameEn: 'Dongjiao Memory',
+    nameEn: 'Eastern Suburb Memory',
     unlocked: false,
     icon: '🎛️',
     summary: 'Creative park with event traffic and scattered entry points.',
@@ -554,7 +554,7 @@ export const DISTRICTS = [
   districtBase({
     slug: 'yulin',
     nameZh: '玉林',
-    nameEn: 'Yulin',
+    nameEn: 'Yulin Road',
     unlocked: false,
     icon: '☕',
     summary: 'Neighborhood bars and cafes with strong repeat-tourist demand.',
