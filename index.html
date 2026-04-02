@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="mapo-ga-id" content="">
+    <title>MAPO Chengdu</title>
+    <link rel="stylesheet" href="assets/site.css">
+  </head>
+  <body data-page="hub">
+    <div class="site-shell">
+      <header class="app-topbar">
+        <div class="app-topbar__row">
+          <div>
+            <div class="wordmark">MAPO</div>
+            <div class="app-topbar__sub">Chengdu · 成都</div>
+          </div>
+          <div class="topbar-badge" id="unlock-badge">3 / 12 unlocked</div>
+        </div>
+      </header>
+
+      <main class="screen-body">
+        <section id="hub-map-panel" class="screen-panel" aria-label="Map tab"></section>
+        <section id="hub-services-panel" class="screen-panel" aria-label="Services tab" hidden></section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Primary">
+        <button class="bottom-nav__item bottom-nav__item--active" type="button" data-tab-target="map" aria-pressed="true">
+          <span>🗺️</span>
+          <span>Map</span>
+        </button>
+        <button class="bottom-nav__item" type="button" data-tab-target="services" aria-pressed="false">
+          <span>⭐</span>
+          <span>Services</span>
+        </button>
+      </nav>
+
+      <section id="unlock-modal-root" class="unlock-modal" hidden></section>
+      <div id="app-toast" class="toast" hidden></div>
+    </div>
+
+    <script type="module" src="assets/app.js"></script>
+  </body>
+</html>
