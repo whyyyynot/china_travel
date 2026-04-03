@@ -292,6 +292,37 @@ function handleDocumentClick(event) {
     return;
   }
 
+  const poiBubble = target.closest('[data-poi-bubble]');
+  if (poiBubble && document.body.dataset.page === 'district') {
+    return;
+  }
+
+  const poiMarker = target.closest('[data-poi-id]');
+  if (poiMarker && document.body.dataset.page === 'district') {
+    event.preventDefault();
+    const poiId = poiMarker.dataset.poiId;
+    districtMapLayerState = toggleSelectedDistrictPoi(
+      districtMapLayerState,
+      poiId,
+    );
+    renderDistrict();
+    return;
+  }
+
+  const mapSurface = target.closest('[data-map-surface="district"]');
+  if (
+    mapSurface &&
+    document.body.dataset.page === 'district' &&
+    districtMapLayerState.selectedPoiId !== null
+  ) {
+    districtMapLayerState = {
+      ...districtMapLayerState,
+      selectedPoiId: null,
+    };
+    renderDistrict();
+    return;
+  }
+
   const copyTarget = target.closest('[data-copy]');
   if (copyTarget) {
     event.preventDefault();

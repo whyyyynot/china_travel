@@ -323,6 +323,16 @@ test('toggleSelectedDistrictPoi selects and deselects the same POI', () => {
   assert.equal(deselected.selectedPoiId, null);
 });
 
+test('toggleSelectedDistrictPoi replaces the selected poi when another poi is clicked', () => {
+  const baseState = {
+    showRoute: false,
+    showPoi: true,
+    selectedPoiId: 'toilet-east-gate',
+  };
+  const next = toggleSelectedDistrictPoi(baseState, 'atm-boc');
+  assert.equal(next.selectedPoiId, 'atm-boc');
+});
+
 test('toggleSelectedDistrictPoi ignores invalid ids', () => {
   const baseState = {
     showRoute: false,
