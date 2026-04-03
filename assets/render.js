@@ -282,6 +282,90 @@ export function buildUnlockModalModel(districts, contact, slug) {
   };
 }
 
+export function buildHubPointModalModel(districts, contact, slug) {
+  const district = getDistrictBySlug(districts, slug);
+  const copyLocationText = `${district.nameEn} / ${district.nameZh}\n${district.hubPopup.addressZh}`;
+
+  const baseModel = {
+    slug: district.slug,
+    isUnlocked: district.unlocked,
+    titleEn: district.nameEn,
+    titleZh: district.nameZh,
+    summaryEn: district.hubPopup.summaryEn,
+    heroImage: district.hubPopup.heroImage,
+    addressZh: district.hubPopup.addressZh,
+    copyLocationText,
+  };
+
+  if (district.unlocked) {
+    return {
+      ...baseModel,
+      primaryAction: {
+        kind: 'enter',
+        label: 'Enter',
+        href: `districts/${district.slug}.html`,
+      },
+    };
+  }
+
+  return {
+    ...baseModel,
+    primaryAction: {
+      kind: 'unlock',
+      label: 'Unlock via WhatsApp',
+      href: buildWhatsAppUrl(
+        contact.whatsapp,
+        `Hi MAPO, please unlock ${district.nameEn} for me.`,
+      ),
+    },
+  };
+}
+
+export function renderHubPointModal(model) {
+  const headerClass = model.isUnlocked
+    ? 'hub-point-modal__header hub-point-modal__header--open'
+    : 'hub-point-modal__header hub-point-modal__header--locked';
+  const primaryClass = model.isUnlocked ? 'btn btn--green' : 'btn btn--orange';
+  const primaryAttributes = model.isUnlocked
+    ? ` data-enter-slug="${escapeHtml(model.slug)}"`
+    : ` target="_blank" rel="noreferrer" data-analytics-event="unlock_cta_click" data-analytics-district="${escapeHtml(
+        model.slug,
+      )}"`;
+
+  return `
+    <div class="unlock-modal__backdrop" data-close-modal="true"></div>
+    <div class="hub-point-modal" role="dialog" aria-modal="true" aria-labelledby="hub-point-title">
+      <header class="${headerClass}">
+        <div>
+          <div class="hub-point-modal__eyebrow">${model.isUnlocked ? 'MAP POINT' : 'LOCKED POINT'}</div>
+          <h2 id="hub-point-title">${escapeHtml(model.titleEn)}</h2>
+          <p class="hub-point-modal__subtitle">${escapeHtml(model.titleZh)}</p>
+        </div>
+        <button class="hub-point-modal__close" type="button" data-close-modal="true" aria-label="Close">×</button>
+      </header>
+      <div class="hub-point-modal__body">
+        <div class="hub-point-modal__image">
+          <img src="${escapeHtml(model.heroImage)}" alt="${escapeHtml(model.titleEn)} hero image">
+        </div>
+        <p class="hub-point-modal__summary">${escapeHtml(model.summaryEn)}</p>
+        <div class="hub-point-modal__location">
+          <div class="hub-point-modal__location-label">LOCATION</div>
+          <div>
+            ${escapeHtml(model.titleEn)} / ${escapeHtml(model.titleZh)}<br>
+            ${escapeHtml(model.addressZh)}
+          </div>
+        </div>
+        <button class="btn btn--ghost" type="button" data-copy="${escapeHtml(
+          model.copyLocationText,
+        )}" data-copy-label="Location">Copy Location</button>
+        <a class="${primaryClass}" href="${escapeHtml(model.primaryAction.href)}"${primaryAttributes}>${escapeHtml(
+          model.primaryAction.label,
+        )}</a>
+      </div>
+    </div>
+  `;
+}
+
 export function buildDistrictPageModel(districts, contact, slug) {
   const district = getDistrictBySlug(districts, slug);
 
@@ -312,15 +396,15 @@ export function renderHubMapSvg(model) {
 
       if (district.unlocked) {
         return `
-          <a class="${classes}" href="districts/${district.slug}.html" ${style} aria-label="${escapeHtml(district.nameEn)}">
+          <button class="${classes}" type="button" data-hub-slug="${escapeHtml(district.slug)}" ${style} aria-label="${escapeHtml(district.nameEn)}">
             <span class="hub-marker__pin" aria-hidden="true"></span>
             <span class="hub-marker__label">${escapeHtml(district.nameEn)}</span>
-          </a>
+          </button>
         `;
       }
 
       return `
-        <button class="${classes}" type="button" data-locked-slug="${district.slug}" ${style} aria-label="${escapeHtml(district.nameEn)}">
+        <button class="${classes}" type="button" data-locked-slug="${escapeHtml(district.slug)}" ${style} aria-label="${escapeHtml(district.nameEn)}">
           <span class="hub-marker__pin" aria-hidden="true">🔒</span>
           <span class="hub-marker__label">${escapeHtml(district.nameEn)}</span>
         </button>

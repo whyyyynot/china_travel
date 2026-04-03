@@ -8,17 +8,17 @@ import * as render from '../assets/render.js';
 const {
   buildDistrictPageModel,
   buildHubMapModel,
+  buildHubPointModalModel,
   buildUnlockModalModel,
   buildWhatsAppUrl,
   getDistrictBySlug,
   getUnlockedDistricts,
   renderDistrictPage,
   renderHubMapSvg,
+  renderHubPointModal,
   renderServiceCards,
   trackEvent,
 } = render;
-
-const { buildHubPointModalModel } = render;
 
 test('getDistrictBySlug returns the requested district model', () => {
   const district = getDistrictBySlug(DISTRICTS, 'wenshuyuan');
@@ -70,6 +70,61 @@ test('buildHubPointModalModel keeps unlock CTA for a locked point', () => {
   assert.match(model.summaryEn, /open-air retail district/i);
 });
 
+test('renderHubMapSvg uses popup triggers for unlocked points instead of direct links', () => {
+  const html = renderHubMapSvg(buildHubMapModel(DISTRICTS));
+  assert.match(html, /data-hub-slug="wenshuyuan"/);
+  assert.doesNotMatch(html, /href="districts\/wenshuyuan\.html"/);
+});
+
+test('renderHubPointModal builds the shared shell with content in the required order for unlocked points', () => {
+  const html = renderHubPointModal(
+    buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+  );
+  assert.match(html, /unlock-modal__backdrop/);
+  assert.match(html, /hub-point-modal/);
+  assert.match(html, /hub-point-modal__header/);
+  assert.match(html, /hub-point-modal__body/);
+  assert.match(html, /hub-point-modal__close/);
+  assert.match(html, /hub-point-modal__image/);
+  assert.match(html, /hub-point-modal__summary/);
+  assert.match(html, /hub-point-modal__location/);
+  assert.match(html, /Copy Location/);
+  assert.match(html, />Enter</);
+
+  const indexes = {
+    titleEn: html.indexOf('Wenshu Monastery'),
+    titleZh: html.indexOf('文殊院'),
+    image: html.indexOf('hub-point-modal__image'),
+    summary: html.indexOf('hub-point-modal__summary'),
+    location: html.indexOf('hub-point-modal__location'),
+    copy: html.indexOf('Copy Location'),
+    action: html.indexOf('>Enter'),
+  };
+
+  assert.ok(indexes.titleEn >= 0);
+  assert.ok(indexes.titleZh >= 0);
+  assert.ok(indexes.image >= 0);
+  assert.ok(indexes.summary >= 0);
+  assert.ok(indexes.location >= 0);
+  assert.ok(indexes.copy >= 0);
+  assert.ok(indexes.action >= 0);
+
+  assert.ok(indexes.titleEn < indexes.titleZh);
+  assert.ok(indexes.titleZh < indexes.image);
+  assert.ok(indexes.image < indexes.summary);
+  assert.ok(indexes.summary < indexes.location);
+  assert.ok(indexes.location < indexes.copy);
+  assert.ok(indexes.copy < indexes.action);
+});
+
+test('renderHubPointModal keeps unlock CTA for locked points', () => {
+  const html = renderHubPointModal(
+    buildHubPointModalModel(DISTRICTS, CONTACT, 'taikooli'),
+  );
+  assert.match(html, /Unlock via WhatsApp/);
+  assert.doesNotMatch(html, />Enter</);
+});
+
 test('district data hubPopup overrides expose hero image, summary, and address', () => {
   const district = DISTRICTS.find((item) => item.slug === 'wenshuyuan');
   assert.ok(district);
@@ -115,7 +170,7 @@ test('buildDistrictPageModel exposes route and poi content for an unlocked distr
 
 test('renderHubMapSvg outputs translated labels and percentage-based marker positions', () => {
   const html = renderHubMapSvg(buildHubMapModel(DISTRICTS));
-  assert.match(html, /href="districts\/wenshuyuan\.html"/);
+  assert.match(html, /data-hub-slug="wenshuyuan"/);
   assert.match(html, /data-locked-slug="taikooli"/);
   assert.match(html, /Wenshu Monastery/);
   assert.match(html, /Jiuyan Bridge/);
