@@ -637,6 +637,39 @@ button {
   border: 1px solid #d6ddd4;
 }
 
+.district-poi-bubble {
+  position: absolute;
+  left: var(--bubble-x);
+  top: var(--bubble-y);
+  transform: translate(
+    calc(-50% + var(--bubble-dx)),
+    calc(-50% + var(--bubble-dy))
+  );
+  min-width: 108px;
+  max-width: 148px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(35, 53, 74, 0.12);
+  box-shadow: 0 10px 22px rgba(40, 54, 71, 0.14);
+  z-index: 2;
+  font-family: var(--font-display);
+}
+
+.district-poi-bubble__title {
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: #1f2d3d;
+  line-height: 1.2;
+}
+
+.district-poi-bubble__detail {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #627180;
+}
+
 .district-map-card__svg {
   display: block;
   width: 100%;

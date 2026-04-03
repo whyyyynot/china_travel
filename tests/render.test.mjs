@@ -435,6 +435,17 @@ test('renderDistrictPage renders a placeholder quick note when a poi detail is m
   assert.match(html, /Short note coming soon/);
 });
 
+test('renderDistrictPage exposes the mini bubble class hooks', () => {
+  const html = renderDistrictPage(
+    buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+    { showRoute: false, showPoi: true, selectedPoiId: 'toilet-east-gate' },
+  );
+
+  assert.match(html, /district-poi-bubble/);
+  assert.match(html, /district-poi-bubble__title/);
+  assert.match(html, /district-poi-bubble__detail/);
+});
+
 test('renderDistrictPage hides the bubble when poi layer is off even if a poi id is selected', () => {
   const html = renderDistrictPage(
     buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan'),
