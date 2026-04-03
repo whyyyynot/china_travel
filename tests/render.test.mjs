@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 
 import { resolveHubTabFromHash } from '../assets/app.js';
 import { CONTACT, DISTRICTS } from '../assets/data.js';
-import {
+import * as render from '../assets/render.js';
+
+const {
   buildDistrictPageModel,
   buildHubMapModel,
   buildUnlockModalModel,
@@ -14,7 +16,9 @@ import {
   renderHubMapSvg,
   renderServiceCards,
   trackEvent,
-} from '../assets/render.js';
+} = render;
+
+const { buildHubPointModalModel } = render;
 
 test('getDistrictBySlug returns the requested district model', () => {
   const district = getDistrictBySlug(DISTRICTS, 'wenshuyuan');
@@ -45,6 +49,53 @@ test('buildHubMapModel returns unlocked and locked district groups', () => {
   assert.equal(model.unlocked.length, 3);
   assert.equal(model.locked.length, 9);
   assert.equal(model.unlockBadge, '3 / 12 unlocked');
+});
+
+test('buildHubPointModalModel returns popup data for an unlocked point', () => {
+  const model = buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan');
+  assert.equal(model.slug, 'wenshuyuan');
+  assert.equal(model.isUnlocked, true);
+  assert.equal(model.titleEn, 'Wenshu Monastery');
+  assert.equal(
+    model.copyLocationText,
+    'Wenshu Monastery / 文殊院\nPlaceholder Chinese address for taxi and map apps',
+  );
+  assert.equal(model.primaryAction.label, 'Enter');
+});
+
+test('buildHubPointModalModel keeps unlock CTA for a locked point', () => {
+  const model = buildHubPointModalModel(DISTRICTS, CONTACT, 'taikooli');
+  assert.equal(model.isUnlocked, false);
+  assert.equal(model.primaryAction.label, 'Unlock via WhatsApp');
+  assert.match(model.summaryEn, /open-air retail district/i);
+});
+
+test('district data hubPopup overrides expose hero image, summary, and address', () => {
+  const district = DISTRICTS.find((item) => item.slug === 'wenshuyuan');
+  assert.ok(district);
+  assert.equal(
+    district.hubPopup.heroImage,
+    'assets/placeholders/wenshu-monastery.png',
+  );
+  assert.match(
+    district.hubPopup.summaryEn,
+    /calm Buddhist monastery district known for temple courtyards/,
+  );
+  assert.equal(
+    district.hubPopup.addressZh,
+    'Placeholder Chinese address for taxi and map apps',
+  );
+});
+
+test('district data hubPopup defaults apply for districts without overrides', () => {
+  const district = DISTRICTS.find((item) => item.slug === 'jinli');
+  assert.ok(district);
+  assert.equal(district.hubPopup.heroImage, 'assets/placeholders/jinli.png');
+  assert.equal(district.hubPopup.summaryEn, district.summary);
+  assert.equal(
+    district.hubPopup.addressZh,
+    'Placeholder Chinese address for taxi and map apps',
+  );
 });
 
 test('buildUnlockModalModel creates district-specific CTA content', () => {

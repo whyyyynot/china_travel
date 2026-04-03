@@ -260,6 +260,7 @@ function districtBase({
   unlocked,
   icon,
   summary,
+  hubPopup = {},
   walkTime = '',
   route = null,
   toilets = [],
@@ -273,6 +274,13 @@ function districtBase({
     unlocked,
     icon,
     summary,
+    hubPopup: {
+      heroImage: hubPopup.heroImage ?? `assets/placeholders/${slug}.png`,
+      summaryEn: hubPopup.summaryEn ?? summary,
+      addressZh:
+        hubPopup.addressZh ??
+        'Placeholder Chinese address for taxi and map apps',
+    },
     walkTime,
     route,
     toilets,
@@ -292,6 +300,12 @@ export const DISTRICTS = [
     unlocked: true,
     icon: '🏯',
     summary: 'Temple lanes, noodle stops, and quick recovery points around Wenshu Monastery.',
+    hubPopup: {
+      heroImage: 'assets/placeholders/wenshu-monastery.png',
+      summaryEn:
+        'A calm Buddhist monastery district known for temple courtyards, teahouse lanes, and easy first-time Chengdu walking routes.',
+      addressZh: 'Placeholder Chinese address for taxi and map apps',
+    },
     walkTime: '~2hr walk',
     route: {
       name: 'Route A',
@@ -526,6 +540,12 @@ export const DISTRICTS = [
     unlocked: false,
     icon: '👜',
     summary: 'Luxury retail maze with fast-demand unlock intent from first-time visitors.',
+    hubPopup: {
+      heroImage: 'assets/placeholders/taikoo-li-chengdu.png',
+      summaryEn:
+        'Chengdu’s flagship open-air retail district, mixing designer storefronts, temple-adjacent lanes, and high-footfall city-center energy.',
+      addressZh: 'Placeholder Chinese address for taxi and map apps',
+    },
   }),
   districtBase({
     slug: 'jinli',
