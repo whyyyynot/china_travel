@@ -63,6 +63,20 @@ test('buildHubPointModalModel returns popup data for an unlocked point', () => {
   assert.equal(model.primaryAction.label, 'Enter');
 });
 
+test('buildHubPointModalModel exposes copy location lines for clipboard usage', () => {
+  const model = buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan');
+  assert.ok(Array.isArray(model.copyLocationLines));
+  assert.equal(model.copyLocationLines.length, 2);
+  assert.equal(
+    model.copyLocationLines[0],
+    'Wenshu Monastery / 文殊院',
+  );
+  assert.equal(
+    model.copyLocationLines[1],
+    'Placeholder Chinese address for taxi and map apps',
+  );
+});
+
 test('buildHubPointModalModel uses district page href for unlocked enter action', () => {
   const model = buildHubPointModalModel(DISTRICTS, CONTACT, 'jiuyanqiao');
   assert.deepEqual(model.primaryAction, {
@@ -124,6 +138,15 @@ test('renderHubPointModal builds the shared shell with content in the required o
   assert.ok(indexes.summary < indexes.location);
   assert.ok(indexes.location < indexes.copy);
   assert.ok(indexes.copy < indexes.action);
+});
+
+test('renderHubPointModal wraps content in scrollable container and encodes copy data', () => {
+  const html = renderHubPointModal(
+    buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+  );
+  assert.match(html, /hub-point-modal__content/);
+  assert.match(html, /hub-point-modal__actions/);
+  assert.match(html, /data-copy="[^"]+&#10;[^"]+"/);
 });
 
 test('renderHubPointModal keeps unlock CTA for locked points', () => {

@@ -426,6 +426,9 @@ button {
   transform: translate(-50%, -50%);
   max-width: 360px;
   width: min(100% - 32px, 360px);
+  max-height: min(90vh, 560px);
+  display: flex;
+  flex-direction: column;
   border-radius: 26px;
   background: #ffffff;
   box-shadow: 0 26px 64px rgba(15, 33, 55, 0.32);
@@ -496,6 +499,23 @@ button {
   flex-direction: column;
   gap: 14px;
   background: rgba(255, 255, 255, 0.96);
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.hub-point-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.hub-point-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .hub-point-modal__image {

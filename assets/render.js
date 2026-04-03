@@ -39,6 +39,10 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+function encodeCopyLines(lines = []) {
+  return lines.map(escapeHtml).join('&#10;');
+}
+
 function formatMapPercent(value, total) {
   return `${((value / total) * 100).toFixed(1)}%`;
 }
@@ -285,6 +289,10 @@ export function buildUnlockModalModel(districts, contact, slug) {
 export function buildHubPointModalModel(districts, contact, slug) {
   const district = getDistrictBySlug(districts, slug);
   const copyLocationText = `${district.nameEn} / ${district.nameZh}\n${district.hubPopup.addressZh}`;
+  const copyLocationLines = [
+    `${district.nameEn} / ${district.nameZh}`,
+    district.hubPopup.addressZh,
+  ];
 
   const baseModel = {
     slug: district.slug,
@@ -295,6 +303,7 @@ export function buildHubPointModalModel(districts, contact, slug) {
     heroImage: district.hubPopup.heroImage,
     addressZh: district.hubPopup.addressZh,
     copyLocationText,
+    copyLocationLines,
   };
 
   if (district.unlocked) {
@@ -331,6 +340,16 @@ export function renderHubPointModal(model) {
     : ` target="_blank" rel="noreferrer" data-analytics-event="unlock_cta_click" data-analytics-district="${escapeHtml(
         model.slug,
       )}"`;
+  const fallbackCopyLines = model.copyLocationText
+    ? model.copyLocationText.split('\n')
+    : [];
+  const rawCopyLines =
+    model.copyLocationLines && model.copyLocationLines.length
+      ? model.copyLocationLines
+      : fallbackCopyLines;
+  const encodedCopyValue =
+    rawCopyLines.length > 0 ? encodeCopyLines(rawCopyLines) : '';
+  const copyAttr = ` data-copy="${encodedCopyValue}" data-copy-label="Location"`;
 
   return `
     <div class="unlock-modal__backdrop" data-close-modal="true"></div>
@@ -344,23 +363,25 @@ export function renderHubPointModal(model) {
         <button class="hub-point-modal__close" type="button" data-close-modal="true" aria-label="Close">×</button>
       </header>
       <div class="hub-point-modal__body">
-        <div class="hub-point-modal__image">
-          <img src="${escapeHtml(model.heroImage)}" alt="${escapeHtml(model.titleEn)} hero image">
-        </div>
-        <p class="hub-point-modal__summary">${escapeHtml(model.summaryEn)}</p>
-        <div class="hub-point-modal__location">
-          <div class="hub-point-modal__location-label">LOCATION</div>
-          <div>
-            ${escapeHtml(model.titleEn)} / ${escapeHtml(model.titleZh)}<br>
-            ${escapeHtml(model.addressZh)}
+        <div class="hub-point-modal__content">
+          <div class="hub-point-modal__image">
+            <img src="${escapeHtml(model.heroImage)}" alt="${escapeHtml(model.titleEn)} hero image">
+          </div>
+          <p class="hub-point-modal__summary">${escapeHtml(model.summaryEn)}</p>
+          <div class="hub-point-modal__location">
+            <div class="hub-point-modal__location-label">LOCATION</div>
+            <div>
+              ${escapeHtml(model.titleEn)} / ${escapeHtml(model.titleZh)}<br>
+              ${escapeHtml(model.addressZh)}
+            </div>
           </div>
         </div>
-        <button class="btn btn--ghost" type="button" data-copy="${escapeHtml(
-          model.copyLocationText,
-        )}" data-copy-label="Location">Copy Location</button>
-        <a class="${primaryClass}" href="${escapeHtml(model.primaryAction.href)}"${primaryAttributes}>${escapeHtml(
-          model.primaryAction.label,
-        )}</a>
+        <div class="hub-point-modal__actions">
+          <button class="btn btn--ghost" type="button"${copyAttr}>Copy Location</button>
+          <a class="${primaryClass}" href="${escapeHtml(model.primaryAction.href)}"${primaryAttributes}>${escapeHtml(
+            model.primaryAction.label,
+          )}</a>
+        </div>
       </div>
     </div>
   `;
