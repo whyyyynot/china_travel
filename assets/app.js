@@ -16,6 +16,32 @@ export function resolveHubTabFromHash(hash) {
   return hash === '#services' ? 'services' : 'map';
 }
 
+export function createDistrictMapLayerState(overrides = {}) {
+  return {
+    showRoute: false,
+    showPoi: false,
+    ...overrides,
+  };
+}
+
+export function toggleDistrictMapLayer(state, layer) {
+  if (layer === 'route') {
+    return {
+      ...state,
+      showRoute: !state.showRoute,
+    };
+  }
+
+  if (layer === 'poi') {
+    return {
+      ...state,
+      showPoi: !state.showPoi,
+    };
+  }
+
+  return state;
+}
+
 function showToast(message) {
   const toast = document.querySelector('#app-toast');
   if (!toast) {

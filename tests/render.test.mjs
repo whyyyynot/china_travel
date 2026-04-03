@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { resolveHubTabFromHash } from '../assets/app.js';
+import {
+  resolveHubTabFromHash,
+  createDistrictMapLayerState,
+  toggleDistrictMapLayer,
+} from '../assets/app.js';
 import { CONTACT, DISTRICTS } from '../assets/data.js';
 import * as render from '../assets/render.js';
 
@@ -238,6 +242,37 @@ test('resolveHubTabFromHash maps the services hash to the services tab', () => {
   assert.equal(resolveHubTabFromHash('#services'), 'services');
   assert.equal(resolveHubTabFromHash('#map'), 'map');
   assert.equal(resolveHubTabFromHash(''), 'map');
+});
+
+test('createDistrictMapLayerState defaults both map layers to off', () => {
+  assert.deepEqual(createDistrictMapLayerState(), {
+    showRoute: false,
+    showPoi: false,
+  });
+});
+
+test('toggleDistrictMapLayer flips route without changing poi', () => {
+  const next = toggleDistrictMapLayer(
+    { showRoute: false, showPoi: true },
+    'route',
+  );
+
+  assert.deepEqual(next, {
+    showRoute: true,
+    showPoi: true,
+  });
+});
+
+test('toggleDistrictMapLayer flips poi without changing route', () => {
+  const next = toggleDistrictMapLayer(
+    { showRoute: true, showPoi: false },
+    'poi',
+  );
+
+  assert.deepEqual(next, {
+    showRoute: true,
+    showPoi: true,
+  });
 });
 
 test('renderHubPointModal shell exposes the overlay class hooks', () => {
