@@ -29,6 +29,8 @@ const TINT_BY_ACCENT = {
 
 const HUB_MAP_WIDTH = 180;
 const HUB_MAP_HEIGHT = 170;
+const DISTRICT_MAP_WIDTH = 184;
+const DISTRICT_MAP_HEIGHT = 240;
 
 function escapeHtml(value) {
   return String(value)
@@ -45,6 +47,35 @@ function encodeCopyLines(lines = []) {
 
 function formatMapPercent(value, total) {
   return `${((value / total) * 100).toFixed(1)}%`;
+}
+
+function getSelectedPoi(map, selectedPoiId) {
+  if (!map || !Array.isArray(map.pois) || !selectedPoiId) {
+    return null;
+  }
+
+  return map.pois.find((poi) => poi.id === selectedPoiId) || null;
+}
+
+function renderDistrictPoiBubble(poi) {
+  if (!poi) {
+    return '';
+  }
+
+  const bubbleDx = poi.bubbleDx ?? 12;
+  const bubbleDy = poi.bubbleDy ?? -52;
+  const detailText = poi.detail ?? 'Short note coming soon';
+
+  return `
+    <div
+      class="district-poi-bubble"
+      data-poi-bubble="${escapeHtml(poi.id)}"
+      style="--bubble-x:${formatMapPercent(poi.x, DISTRICT_MAP_WIDTH)};--bubble-y:${formatMapPercent(poi.y, DISTRICT_MAP_HEIGHT)};--bubble-dx:${bubbleDx}px;--bubble-dy:${bubbleDy}px;"
+    >
+      <div class="district-poi-bubble__title">${escapeHtml(poi.title)}</div>
+      <div class="district-poi-bubble__detail">${escapeHtml(detailText)}</div>
+    </div>
+  `;
 }
 
 function buildHubMarkerStyle(hub) {
@@ -97,8 +128,12 @@ function renderSvgPoi(poi) {
   const fill = COLOR_BY_ACCENT[poi.color];
 
   return `
-    <circle cx="${poi.x}" cy="${poi.y}" r="7" fill="${fill}" stroke="white" stroke-width="1.5"></circle>
-    <text x="${poi.x}" y="${poi.y + 3}" text-anchor="middle" font-size="7">${poi.emoji}</text>
+    <g class="district-poi-marker" data-poi-id="${escapeHtml(
+      poi.id,
+    )}" tabindex="0" role="button" aria-label="${escapeHtml(poi.title)}">
+      <circle cx="${poi.x}" cy="${poi.y}" r="7" fill="${fill}" stroke="white" stroke-width="1.5"></circle>
+      <text x="${poi.x}" y="${poi.y + 3}" text-anchor="middle" font-size="7">${escapeHtml(poi.emoji)}</text>
+    </g>
   `;
 }
 
@@ -124,6 +159,7 @@ function normalizeMapLayerState(state) {
   return {
     showRoute: Boolean(safeState.showRoute),
     showPoi: Boolean(safeState.showPoi),
+    selectedPoiId: safeState.selectedPoiId ?? null,
   };
 }
 
@@ -155,6 +191,9 @@ function renderDistrictMap(model, layers = normalizeMapLayerState()) {
   const blocks = map.blocks.map(renderBlock).join('');
   const landmarks = map.landmarks.map(renderLandmark).join('');
   const labels = map.labels.map(renderSvgLabel).join('');
+  const selectedPoi = layers.showPoi
+    ? getSelectedPoi(map, layers.selectedPoiId)
+    : null;
 
   const routeLayerMarkup = layers.showRoute
     ? `
@@ -164,7 +203,10 @@ function renderDistrictMap(model, layers = normalizeMapLayerState()) {
       `
     : '';
 
-  const poiMarkup = layers.showPoi ? map.pois.map(renderSvgPoi).join('') : '';
+  const poiMarkup =
+    layers.showPoi && Array.isArray(map.pois)
+      ? map.pois.map(renderSvgPoi).join('')
+      : '';
 
   const legendMarkup = layers.showPoi
     ? `<div class="map-legend">${model.legend
@@ -174,10 +216,13 @@ function renderDistrictMap(model, layers = normalizeMapLayerState()) {
         )
         .join('')}</div>`
     : '';
+  const poiBubbleMarkup = layers.showPoi
+    ? renderDistrictPoiBubble(selectedPoi)
+    : '';
 
   return `
     <section class="district-map-card">
-      <div class="district-map-card__frame">
+      <div class="district-map-card__frame" data-map-surface="district">
         <svg viewBox="${map.viewBox}" xmlns="http://www.w3.org/2000/svg" class="district-map-card__svg">
           <rect width="184" height="240" fill="#f2efe9"></rect>
           ${streets}
@@ -188,6 +233,7 @@ function renderDistrictMap(model, layers = normalizeMapLayerState()) {
           ${labels}
         </svg>
         ${legendMarkup}
+        ${poiBubbleMarkup}
       </div>
       ${renderMapToolbar(layers)}
       <div class="district-map-card__hint">↓ Scroll down for POI cards</div>

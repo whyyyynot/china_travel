@@ -394,6 +394,46 @@ test('renderDistrictPage shows route, POIs, and legend when both toggles are on'
   assert.match(html, /map-legend/);
 });
 
+test('renderDistrictPage does not render a poi bubble when no poi is selected', () => {
+  const html = renderDistrictPage(
+    buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+    { showRoute: false, showPoi: true, selectedPoiId: null },
+  );
+
+  assert.doesNotMatch(html, /district-poi-bubble/);
+});
+
+test('renderDistrictPage renders a toilet bubble with the toilet type', () => {
+  const html = renderDistrictPage(
+    buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+    { showRoute: false, showPoi: true, selectedPoiId: 'toilet-east-gate' },
+  );
+
+  assert.match(html, /district-poi-bubble/);
+  assert.match(html, /Temple East Gate/);
+  assert.match(html, /Sit-down/);
+});
+
+test('renderDistrictPage renders a placeholder quick note when a poi detail is missing', () => {
+  const html = renderDistrictPage(
+    buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+    { showRoute: false, showPoi: true, selectedPoiId: 'photo-north-wall' },
+  );
+
+  assert.match(html, /district-poi-bubble/);
+  assert.match(html, /Photo Wall/);
+  assert.match(html, /Short note coming soon/);
+});
+
+test('renderDistrictPage hides the bubble when poi layer is off even if a poi id is selected', () => {
+  const html = renderDistrictPage(
+    buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+    { showRoute: false, showPoi: false, selectedPoiId: 'toilet-east-gate' },
+  );
+
+  assert.doesNotMatch(html, /district-poi-bubble/);
+});
+
 test('renderDistrictPage renders the toolbar with two off buttons', () => {
   const html = renderDistrictPage(layerTestModel, createLayerState(false, false));
   assert.match(html, /<div[^>]+class="[^"]*district-map-controls[^"]*"/);
