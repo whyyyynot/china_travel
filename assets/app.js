@@ -42,6 +42,25 @@ export function toggleDistrictMapLayer(state, layer) {
   return state;
 }
 
+let districtMapLayerState = createDistrictMapLayerState();
+let hasTrackedDistrictOpenEvent = false;
+
+export function resetDistrictOpenAnalytics() {
+  hasTrackedDistrictOpenEvent = false;
+}
+
+export function shouldTrackDistrictOpenEvent() {
+  return !hasTrackedDistrictOpenEvent;
+}
+
+export function markDistrictOpenAnalyticsTracked() {
+  hasTrackedDistrictOpenEvent = true;
+}
+
+export function isDistrictLayerToggle(layer) {
+  return layer === 'route' || layer === 'poi';
+}
+
 function showToast(message) {
   const toast = document.querySelector('#app-toast');
   if (!toast) {
@@ -193,12 +212,15 @@ function renderDistrict() {
   }
 
   const model = buildDistrictPageModel(DISTRICTS, CONTACT, slug);
-  root.innerHTML = renderDistrictPage(model);
+  root.innerHTML = renderDistrictPage(model, districtMapLayerState);
   document.title = `${model.nameEn} | MAPO Chengdu`;
 
-  trackEvent(window.gtag, 'district_open', {
-    district_name: model.slug,
-  });
+  if (shouldTrackDistrictOpenEvent()) {
+    trackEvent(window.gtag, 'district_open', {
+      district_name: model.slug,
+    });
+    markDistrictOpenAnalyticsTracked();
+  }
 }
 
 function handleDocumentClick(event) {
@@ -241,6 +263,21 @@ function handleDocumentClick(event) {
     return;
   }
 
+  const layerToggle = target.closest('[data-layer-toggle]');
+  if (layerToggle && document.body.dataset.page === 'district') {
+    const layer = layerToggle.dataset.layerToggle;
+    if (!isDistrictLayerToggle(layer)) {
+      return;
+    }
+    event.preventDefault();
+    districtMapLayerState = toggleDistrictMapLayer(
+      districtMapLayerState,
+      layer,
+    );
+    renderDistrict();
+    return;
+  }
+
   const copyTarget = target.closest('[data-copy]');
   if (copyTarget) {
     event.preventDefault();
@@ -266,6 +303,8 @@ function initPage() {
   }
 
   if (document.body.dataset.page === 'district') {
+    districtMapLayerState = createDistrictMapLayerState();
+    resetDistrictOpenAnalytics();
     renderDistrict();
   }
 }

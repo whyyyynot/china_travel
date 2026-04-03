@@ -5,6 +5,10 @@ import {
   resolveHubTabFromHash,
   createDistrictMapLayerState,
   toggleDistrictMapLayer,
+  resetDistrictOpenAnalytics,
+  shouldTrackDistrictOpenEvent,
+  markDistrictOpenAnalyticsTracked,
+  isDistrictLayerToggle,
 } from '../assets/app.js';
 import { CONTACT, DISTRICTS } from '../assets/data.js';
 import * as render from '../assets/render.js';
@@ -273,6 +277,28 @@ test('toggleDistrictMapLayer flips poi without changing route', () => {
     showRoute: true,
     showPoi: true,
   });
+});
+
+test('toggleDistrictMapLayer ignores unknown layer names', () => {
+  const current = { showRoute: true, showPoi: false };
+  const next = toggleDistrictMapLayer(current, 'unknown');
+
+  assert.deepEqual(next, current);
+});
+
+test('district open analytics guard toggles after marking and resets', () => {
+  resetDistrictOpenAnalytics();
+  assert.equal(shouldTrackDistrictOpenEvent(), true);
+  markDistrictOpenAnalyticsTracked();
+  assert.equal(shouldTrackDistrictOpenEvent(), false);
+  resetDistrictOpenAnalytics();
+  assert.equal(shouldTrackDistrictOpenEvent(), true);
+});
+
+test('isDistrictLayerToggle only recognizes route and poi', () => {
+  assert.equal(isDistrictLayerToggle('route'), true);
+  assert.equal(isDistrictLayerToggle('poi'), true);
+  assert.equal(isDistrictLayerToggle('unknown'), false);
 });
 
 const layerTestModel = buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan');
