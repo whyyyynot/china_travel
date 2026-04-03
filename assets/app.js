@@ -2,11 +2,11 @@ import { CONTACT, DISTRICTS } from './data.js';
 import {
   buildDistrictPageModel,
   buildHubMapModel,
-  buildUnlockModalModel,
+  buildHubPointModalModel,
   renderDistrictPage,
   renderHubMapSvg,
+  renderHubPointModal,
   renderServiceCards,
-  renderUnlockModal,
   trackEvent,
 } from './render.js';
 
@@ -129,23 +129,25 @@ function renderHubPage() {
   setHubTab(resolveHubTabFromHash(window.location.hash));
 }
 
-function openUnlockModal(slug) {
+function openHubPointModal(slug) {
   const root = document.querySelector('#unlock-modal-root');
   if (!root) {
     return;
   }
 
-  const model = buildUnlockModalModel(DISTRICTS, CONTACT, slug);
-  root.innerHTML = renderUnlockModal(model);
+  const model = buildHubPointModalModel(DISTRICTS, CONTACT, slug);
+  root.innerHTML = renderHubPointModal(model);
   root.hidden = false;
   document.body.classList.add('modal-open');
 
-  trackEvent(window.gtag, 'unlock_intent', {
-    district_name: slug,
-  });
+  if (!model.isUnlocked) {
+    trackEvent(window.gtag, 'unlock_intent', {
+      district_name: slug,
+    });
+  }
 }
 
-function closeUnlockModal() {
+function closeHubPointModal() {
   const root = document.querySelector('#unlock-modal-root');
   if (!root) {
     return;
@@ -196,17 +198,20 @@ function handleDocumentClick(event) {
     return;
   }
 
-  const lockedDistrict = target.closest('[data-locked-slug]');
-  if (lockedDistrict) {
+  const hubPoint = target.closest('[data-hub-slug], [data-locked-slug]');
+  if (hubPoint) {
     event.preventDefault();
-    openUnlockModal(lockedDistrict.dataset.lockedSlug);
+    const slug = hubPoint.dataset.hubSlug || hubPoint.dataset.lockedSlug;
+    if (slug) {
+      openHubPointModal(slug);
+    }
     return;
   }
 
   const closeTarget = target.closest('[data-close-modal]');
   if (closeTarget) {
     event.preventDefault();
-    closeUnlockModal();
+    closeHubPointModal();
     return;
   }
 

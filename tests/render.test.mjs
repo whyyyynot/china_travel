@@ -63,6 +63,15 @@ test('buildHubPointModalModel returns popup data for an unlocked point', () => {
   assert.equal(model.primaryAction.label, 'Enter');
 });
 
+test('buildHubPointModalModel uses district page href for unlocked enter action', () => {
+  const model = buildHubPointModalModel(DISTRICTS, CONTACT, 'jiuyanqiao');
+  assert.deepEqual(model.primaryAction, {
+    kind: 'enter',
+    label: 'Enter',
+    href: 'districts/jiuyanqiao.html',
+  });
+});
+
 test('buildHubPointModalModel keeps unlock CTA for a locked point', () => {
   const model = buildHubPointModalModel(DISTRICTS, CONTACT, 'taikooli');
   assert.equal(model.isUnlocked, false);
