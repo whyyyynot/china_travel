@@ -365,6 +365,25 @@ test('renderDistrictPage toolbar toggles include active class and aria-pressed w
   );
 });
 
+test('renderDistrictPage places the toolbar below the map and above the content', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(false, false));
+  const mapMatch = html.match(/<section\b[^>]*\bdistrict-map-card\b[^>]*>/);
+  const toolbarMatch = html.match(/<div\b[^>]*\bdistrict-map-controls\b[^>]*>/);
+  const contentMatch = html.match(/<div\b[^>]*\bdistrict-content\b[^>]*>/);
+
+  assert.ok(mapMatch);
+  assert.ok(toolbarMatch);
+  assert.ok(contentMatch);
+
+  const mapIndex = mapMatch.index;
+  const toolbarIndex = toolbarMatch.index;
+  const contentIndex = contentMatch.index;
+
+  assert.ok(mapIndex >= 0);
+  assert.ok(toolbarIndex > mapIndex);
+  assert.ok(contentIndex > toolbarIndex);
+});
+
 test('renderHubPointModal shell exposes the overlay class hooks', () => {
   const unlockedHtml = renderHubPointModal(
     buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan'),

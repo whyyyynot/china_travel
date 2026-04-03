@@ -643,6 +643,39 @@ button {
   height: auto;
 }
 
+.district-map-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.district-map-toggle {
+  min-height: 48px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(223, 230, 238, 0.95);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: border 120ms ease, background 120ms ease, color 120ms ease,
+    transform 120ms ease;
+}
+
+.district-map-toggle:focus-visible,
+.district-map-toggle:hover {
+  border-color: var(--blue-dark);
+}
+
+.district-map-toggle--active {
+  border-color: rgba(27, 132, 226, 0.4);
+  background: #eff7ff;
+  color: var(--blue-dark);
+  box-shadow: 0 12px 24px rgba(17, 96, 200, 0.18);
+}
+
 .map-legend {
   position: absolute;
   right: 8px;
