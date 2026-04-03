@@ -216,3 +216,24 @@ test('resolveHubTabFromHash maps the services hash to the services tab', () => {
   assert.equal(resolveHubTabFromHash('#map'), 'map');
   assert.equal(resolveHubTabFromHash(''), 'map');
 });
+
+test('renderHubPointModal shell exposes the overlay class hooks', () => {
+  const unlockedHtml = renderHubPointModal(
+    buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan'),
+  );
+  assert.match(unlockedHtml, /<div[^>]*class="[^"]*hub-point-modal[^"]*"/);
+  assert.match(unlockedHtml, /<div[^>]*role="dialog"/);
+  assert.match(unlockedHtml, /<header[^>]*class="[^"]*hub-point-modal__header[^"]*"/);
+  assert.match(unlockedHtml, /hub-point-modal__header--open/);
+  assert.match(unlockedHtml, /<div[^>]*class="[^"]*hub-point-modal__body[^"]*"/);
+  assert.match(unlockedHtml, /<button[^>]*class="[^"]*hub-point-modal__close[^"]*"/);
+
+  const lockedHtml = renderHubPointModal(
+    buildHubPointModalModel(DISTRICTS, CONTACT, 'taikooli'),
+  );
+  assert.match(
+    lockedHtml,
+    /<header[^>]*class="[^"]*hub-point-modal__header[^"]*"/,
+  );
+  assert.match(lockedHtml, /hub-point-modal__header--locked/);
+});
