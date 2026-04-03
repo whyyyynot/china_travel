@@ -275,6 +275,70 @@ test('toggleDistrictMapLayer flips poi without changing route', () => {
   });
 });
 
+const layerTestModel = buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan');
+const createLayerState = (showRoute, showPoi) => ({ showRoute, showPoi });
+const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const routePathPattern = new RegExp(escapeRegExp(layerTestModel.map.routePath));
+const poiMarker = layerTestModel.map.pois[0];
+const poiPattern = new RegExp(
+  `<circle[^>]*(?:cx="${poiMarker.x}"[^>]*cy="${poiMarker.y}"|cy="${poiMarker.y}"[^>]*cx="${poiMarker.x}")`,
+);
+
+test('renderDistrictPage hides route, POIs, and legend when both toggles are off', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(false, false));
+  assert.doesNotMatch(html, routePathPattern);
+  assert.doesNotMatch(html, poiPattern);
+  assert.doesNotMatch(html, /map-legend/);
+});
+
+test('renderDistrictPage shows only the route overlay when Route is on', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(true, false));
+  assert.match(html, routePathPattern);
+  assert.doesNotMatch(html, poiPattern);
+  assert.doesNotMatch(html, /map-legend/);
+});
+
+test('renderDistrictPage shows POI markers and legend when POI is on', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(false, true));
+  assert.match(html, poiPattern);
+  assert.match(html, /map-legend/);
+  assert.doesNotMatch(html, routePathPattern);
+});
+
+test('renderDistrictPage shows route, POIs, and legend when both toggles are on', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(true, true));
+  assert.match(html, routePathPattern);
+  assert.match(html, poiPattern);
+  assert.match(html, /map-legend/);
+});
+
+test('renderDistrictPage renders the toolbar with two off buttons', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(false, false));
+  assert.match(html, /<div[^>]+class="[^"]*district-map-controls[^"]*"/);
+  assert.match(
+    html,
+    /<button[^>]+class="[^"]*district-map-toggle[^"]*"[^>]*data-layer-toggle="route"[^>]*aria-pressed="false"/,
+  );
+  assert.match(
+    html,
+    /<button[^>]+class="[^"]*district-map-toggle[^"]*"[^>]*data-layer-toggle="poi"[^>]*aria-pressed="false"/,
+  );
+  assert.doesNotMatch(html, /district-map-toggle--active/);
+  assert.match(html, /aria-pressed="false"/);
+});
+
+test('renderDistrictPage toolbar toggles include active class and aria-pressed when layers are on', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(true, true));
+  assert.match(
+    html,
+    /<button[^>]+class="[^"]*district-map-toggle[^"]*district-map-toggle--active[^"]*"[^>]*data-layer-toggle="route"[^>]*aria-pressed="true"/,
+  );
+  assert.match(
+    html,
+    /<button[^>]+class="[^"]*district-map-toggle[^"]*district-map-toggle--active[^"]*"[^>]*data-layer-toggle="poi"[^>]*aria-pressed="true"/,
+  );
+});
+
 test('renderHubPointModal shell exposes the overlay class hooks', () => {
   const unlockedHtml = renderHubPointModal(
     buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan'),

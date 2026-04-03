@@ -119,8 +119,29 @@ function renderLandmark(landmark) {
   `;
 }
 
-function renderDistrictMap(model) {
+function normalizeMapLayerState(state) {
+  const safeState = state && typeof state === 'object' ? state : {};
+  return {
+    showRoute: Boolean(safeState.showRoute),
+    showPoi: Boolean(safeState.showPoi),
+  };
+}
+
+function renderMapToolbar(layers) {
+  const renderButton = (label, flag, layer) =>
+    `<button class="district-map-toggle${flag ? ' district-map-toggle--active' : ''}" type="button" data-layer-toggle="${layer}" aria-pressed="${flag ? 'true' : 'false'}">${label}</button>`;
+
+  return `
+    <div class="district-map-controls">
+      ${renderButton('Route', layers.showRoute, 'route')}
+      ${renderButton('POI', layers.showPoi, 'poi')}
+    </div>
+  `;
+}
+
+function renderDistrictMap(model, layers = normalizeMapLayerState()) {
   const map = model.map;
+
   if (!map) {
     return '';
   }
@@ -133,14 +154,26 @@ function renderDistrictMap(model) {
     .join('');
   const blocks = map.blocks.map(renderBlock).join('');
   const landmarks = map.landmarks.map(renderLandmark).join('');
-  const pois = map.pois.map(renderSvgPoi).join('');
   const labels = map.labels.map(renderSvgLabel).join('');
-  const legend = model.legend
-    .map(
-      (item) =>
-        `<div class="legend__item"><span>${item.emoji}</span><span>${escapeHtml(item.label)}</span></div>`,
-    )
-    .join('');
+
+  const routeLayerMarkup = layers.showRoute
+    ? `
+        <path d="${map.routePath}" fill="none" stroke="#58cc02" stroke-width="2.5" stroke-dasharray="5,3" stroke-linecap="round" stroke-linejoin="round"></path>
+        <circle cx="${map.start.x}" cy="${map.start.y}" r="7" fill="#58cc02" stroke="white" stroke-width="1.5"></circle>
+        <text x="${map.start.x}" y="${map.start.y + 3}" text-anchor="middle" font-size="6" fill="white" font-weight="900">S</text>
+      `
+    : '';
+
+  const poiMarkup = layers.showPoi ? map.pois.map(renderSvgPoi).join('') : '';
+
+  const legendMarkup = layers.showPoi
+    ? `<div class="map-legend">${model.legend
+        .map(
+          (item) =>
+            `<div class="legend__item"><span>${item.emoji}</span><span>${escapeHtml(item.label)}</span></div>`,
+        )
+        .join('')}</div>`
+    : '';
 
   return `
     <section class="district-map-card">
@@ -150,13 +183,11 @@ function renderDistrictMap(model) {
           ${streets}
           ${blocks}
           ${landmarks}
-          <path d="${map.routePath}" fill="none" stroke="#58cc02" stroke-width="2.5" stroke-dasharray="5,3" stroke-linecap="round" stroke-linejoin="round"></path>
-          <circle cx="${map.start.x}" cy="${map.start.y}" r="7" fill="#58cc02" stroke="white" stroke-width="1.5"></circle>
-          <text x="${map.start.x}" y="${map.start.y + 3}" text-anchor="middle" font-size="6" fill="white" font-weight="900">S</text>
-          ${pois}
+          ${routeLayerMarkup}
+          ${poiMarkup}
           ${labels}
         </svg>
-        <div class="map-legend">${legend}</div>
+        ${legendMarkup}
       </div>
       <div class="district-map-card__hint">↓ Scroll down for POI cards</div>
     </section>
@@ -496,9 +527,13 @@ export function renderUnlockModal(model) {
   `;
 }
 
-export function renderDistrictPage(model) {
+export function renderDistrictPage(model, mapLayerState) {
+  const mapLayers = normalizeMapLayerState(mapLayerState);
   const toilets = model.toilets.map(renderToiletCard).join('');
   const restaurants = model.restaurants.map(renderRestaurantCard).join('');
+  const hasMap = Boolean(model.map);
+  const mapMarkup = renderDistrictMap(model, mapLayers);
+  const toolbarMarkup = hasMap ? renderMapToolbar(mapLayers) : '';
 
   return `
     <header class="district-hero">
@@ -509,7 +544,8 @@ export function renderDistrictPage(model) {
       </div>
       <span class="route-pill route-pill--ghost">${escapeHtml(model.routeBadge)}</span>
     </header>
-    ${renderDistrictMap(model)}
+    ${mapMarkup}
+    ${toolbarMarkup}
     <div class="district-content">
       ${renderRouteCard(model.route)}
       <section class="content-section">
