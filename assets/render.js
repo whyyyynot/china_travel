@@ -189,6 +189,7 @@ function renderDistrictMap(model, layers = normalizeMapLayerState()) {
         </svg>
         ${legendMarkup}
       </div>
+      ${renderMapToolbar(layers)}
       <div class="district-map-card__hint">↓ Scroll down for POI cards</div>
     </section>
   `;
@@ -531,9 +532,7 @@ export function renderDistrictPage(model, mapLayerState) {
   const mapLayers = normalizeMapLayerState(mapLayerState);
   const toilets = model.toilets.map(renderToiletCard).join('');
   const restaurants = model.restaurants.map(renderRestaurantCard).join('');
-  const hasMap = Boolean(model.map);
   const mapMarkup = renderDistrictMap(model, mapLayers);
-  const toolbarMarkup = hasMap ? renderMapToolbar(mapLayers) : '';
 
   return `
     <header class="district-hero">
@@ -545,7 +544,6 @@ export function renderDistrictPage(model, mapLayerState) {
       <span class="route-pill route-pill--ghost">${escapeHtml(model.routeBadge)}</span>
     </header>
     ${mapMarkup}
-    ${toolbarMarkup}
     <div class="district-content">
       ${renderRouteCard(model.route)}
       <section class="content-section">

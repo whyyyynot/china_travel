@@ -384,6 +384,19 @@ test('renderDistrictPage places the toolbar below the map and above the content'
   assert.ok(contentIndex > toolbarIndex);
 });
 
+test('renderDistrictPage nests the toolbar inside the map card before the scroll hint', () => {
+  const html = renderDistrictPage(layerTestModel, createLayerState(false, false));
+  const cardStart = html.indexOf('<section class="district-map-card">');
+  const toolbarIndex = html.indexOf('<div class="district-map-controls">');
+  const hintIndex = html.indexOf('district-map-card__hint');
+  const cardEnd = html.indexOf('</section>', cardStart);
+
+  assert.ok(cardStart >= 0);
+  assert.ok(toolbarIndex > cardStart);
+  assert.ok(hintIndex > toolbarIndex);
+  assert.ok(cardEnd > hintIndex);
+});
+
 test('renderHubPointModal shell exposes the overlay class hooks', () => {
   const unlockedHtml = renderHubPointModal(
     buildHubPointModalModel(DISTRICTS, CONTACT, 'wenshuyuan'),
