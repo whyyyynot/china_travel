@@ -40,6 +40,7 @@ The mini bubble behaves like a map annotation.
 - It only exists when the `POI` layer is enabled
 - Tapping a visible POI icon opens a small bubble anchored near that point
 - The bubble shows only the minimum useful information
+- Tapping the currently open POI icon again closes the bubble
 - Tapping the map background closes the bubble
 - Tapping a different POI closes the old bubble and opens the new one
 - Turning `POI` off closes the bubble immediately
@@ -159,6 +160,8 @@ The bubble should reuse district data already present in `assets/data.js`.
 
 For categories where current data is too sparse, add one compact field rather than inventing a second disconnected POI content source.
 
+If a POI does not yet have a reliable “must-know” field, the bubble may temporarily use a short placeholder line until the real content is filled in. This fallback must stay short and map-appropriate.
+
 Examples:
 
 - toilet: `type`
@@ -178,6 +181,8 @@ Implementation must verify at least these behaviors:
 3. Only one bubble is rendered at a time
 4. Turning `POI` off removes the bubble
 5. Clicking one POI then another replaces the visible bubble content
+6. Clicking the same POI twice closes the bubble
+7. A POI without a final quick-detail field can still render a short placeholder line
 
 ---
 
@@ -189,6 +194,7 @@ This enhancement is complete when:
 - the bubble shows only short essential info
 - bubble behavior is tied to POI layer visibility
 - clicking empty map area closes the bubble
+- clicking the same POI twice closes the bubble
 - turning POI off closes the bubble
 - only one bubble is visible at a time
 - the bubble remains visually lightweight and map-local
