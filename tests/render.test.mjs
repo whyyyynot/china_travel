@@ -5,6 +5,7 @@ import {
   resolveHubTabFromHash,
   createDistrictMapLayerState,
   toggleDistrictMapLayer,
+  toggleSelectedDistrictPoi,
   resetDistrictOpenAnalytics,
   shouldTrackDistrictOpenEvent,
   markDistrictOpenAnalyticsTracked,
@@ -252,30 +253,57 @@ test('createDistrictMapLayerState defaults both map layers to off', () => {
   assert.deepEqual(createDistrictMapLayerState(), {
     showRoute: false,
     showPoi: false,
+    selectedPoiId: null,
   });
 });
 
 test('toggleDistrictMapLayer flips route without changing poi', () => {
   const next = toggleDistrictMapLayer(
-    { showRoute: false, showPoi: true },
+    { showRoute: false, showPoi: true, selectedPoiId: 'poi-sample' },
     'route',
   );
 
   assert.deepEqual(next, {
     showRoute: true,
     showPoi: true,
+    selectedPoiId: 'poi-sample',
   });
+});
+
+test('toggleDistrictMapLayer normalizes selectedPoiId when enabling poi from partial state', () => {
+  const next = toggleDistrictMapLayer(
+    { showRoute: true, showPoi: false },
+    'poi',
+  );
+
+  assert.equal(next.selectedPoiId, null);
 });
 
 test('toggleDistrictMapLayer flips poi without changing route', () => {
   const next = toggleDistrictMapLayer(
-    { showRoute: true, showPoi: false },
+    { showRoute: true, showPoi: false, selectedPoiId: null },
     'poi',
   );
 
   assert.deepEqual(next, {
     showRoute: true,
     showPoi: true,
+    selectedPoiId: null,
+  });
+});
+
+test('toggleDistrictMapLayer clears selectedPoiId when poi is turned off', () => {
+  const current = {
+    showRoute: true,
+    showPoi: true,
+    selectedPoiId: 'poi-sample',
+  };
+  const next = toggleDistrictMapLayer(current, 'poi');
+
+  assert.deepEqual(next, {
+    showRoute: true,
+    showPoi: false,
+    selectedPoiId: null,
   });
 });
 
@@ -284,6 +312,33 @@ test('toggleDistrictMapLayer ignores unknown layer names', () => {
   const next = toggleDistrictMapLayer(current, 'unknown');
 
   assert.deepEqual(next, current);
+});
+
+test('toggleSelectedDistrictPoi selects and deselects the same POI', () => {
+  const baseState = { showRoute: false, showPoi: true, selectedPoiId: null };
+  const selected = toggleSelectedDistrictPoi(baseState, 'poi-1');
+  assert.equal(selected.selectedPoiId, 'poi-1');
+
+  const deselected = toggleSelectedDistrictPoi(selected, 'poi-1');
+  assert.equal(deselected.selectedPoiId, null);
+});
+
+test('toggleSelectedDistrictPoi ignores invalid ids', () => {
+  const baseState = {
+    showRoute: false,
+    showPoi: true,
+    selectedPoiId: 'poi-1',
+  };
+
+  const empty = toggleSelectedDistrictPoi(baseState, '');
+  assert.equal(empty, baseState);
+
+  const nonString = toggleSelectedDistrictPoi(baseState, 123);
+  assert.equal(nonString, baseState);
+
+  const undefinedId = toggleSelectedDistrictPoi(baseState, undefined);
+  assert.equal(undefinedId, baseState);
+  assert.equal(baseState.selectedPoiId, 'poi-1');
 });
 
 test('district open analytics guard toggles after marking and resets', () => {
@@ -302,7 +357,8 @@ test('isDistrictLayerToggle only recognizes route and poi', () => {
 });
 
 const layerTestModel = buildDistrictPageModel(DISTRICTS, CONTACT, 'wenshuyuan');
-const createLayerState = (showRoute, showPoi) => ({ showRoute, showPoi });
+const createLayerState = (showRoute, showPoi, overrides = {}) =>
+  createDistrictMapLayerState({ showRoute, showPoi, ...overrides });
 const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const routePathPattern = new RegExp(escapeRegExp(layerTestModel.map.routePath));
 const poiMarker = layerTestModel.map.pois[0];

@@ -20,6 +20,7 @@ export function createDistrictMapLayerState(overrides = {}) {
   return {
     showRoute: false,
     showPoi: false,
+    selectedPoiId: null,
     ...overrides,
   };
 }
@@ -33,13 +34,26 @@ export function toggleDistrictMapLayer(state, layer) {
   }
 
   if (layer === 'poi') {
+    const nextShowPoi = !state.showPoi;
     return {
       ...state,
-      showPoi: !state.showPoi,
+      showPoi: nextShowPoi,
+      selectedPoiId: nextShowPoi ? (state.selectedPoiId ?? null) : null,
     };
   }
 
   return state;
+}
+
+export function toggleSelectedDistrictPoi(state, poiId) {
+  if (typeof poiId !== 'string' || poiId.length === 0) {
+    return state;
+  }
+
+  return {
+    ...state,
+    selectedPoiId: state.selectedPoiId === poiId ? null : poiId,
+  };
 }
 
 let districtMapLayerState = createDistrictMapLayerState();
